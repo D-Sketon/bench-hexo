@@ -1,0 +1,39 @@
+{
+  "name": "bench-hexo",
+  "version": "0.1.0-beta.3",
+  "bin": {
+    "bench-hexo": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "D-Sketon",
+  "license": "MIT",
+  "description": "A benchmarking cli for Hexo.",
+  "devDependencies": {
+    "@types/node": "^22.13.13",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "0x": "^5.8.0",
+    "asciichart": "^1.5.25",
+    "commander": "^13.1.0",
+    "fast-text-table": "^0.1.0",
+    "megumu": "^0.1.0",
+    "ora": "^5.4.1"
+  },
+  "peerDependencies": {
+    "hexo": ">6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/D-Sketon/bench-hexo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/D-Sketon/bench-hexo/issues"
+  },
+  "homepage": "https://github.com/D-Sketon/bench-hexo#readme"
+}
