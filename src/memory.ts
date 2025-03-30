@@ -28,7 +28,7 @@ function getSampleStats(arr: number[]) {
   };
 }
 
-export default async (
+const memoryBenchmark = async (
   sampleRate: number = 500,
   clean: boolean = true,
   concurrency: number = Infinity
@@ -89,3 +89,17 @@ export default async (
     ])
   );
 };
+
+const args = process.argv.slice(2);
+const sampleRate = Number(args[0]) || 500;
+const concurrency = Number(args[1]) || Infinity;
+const clean = args[2] !== "false";
+
+memoryBenchmark(sampleRate, clean, concurrency)
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error("Error during memory profiling:", err);
+    process.exit(1);
+  });

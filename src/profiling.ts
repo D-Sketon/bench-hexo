@@ -6,7 +6,8 @@ import { spawn } from "child_process";
 
 export default async (
   clean: boolean = true,
-  concurrency: number = Infinity
+  concurrency: number = Infinity,
+  maxOldSpaceSize: number = 4096
 ) => {
   const zeroEksDir = resolve(process.cwd(), "0x");
   const hexoBin = resolve(process.cwd(), "node_modules/hexo/bin/hexo");
@@ -24,6 +25,7 @@ export default async (
   const spinner = ora({ text: "Running profiling...", color: "cyan" }).start();
   const zeroEksOpts = {
     argv: [
+      `--max-old-space-size=${maxOldSpaceSize}`,
       hexoBin,
       "g",
       "--cwd",
