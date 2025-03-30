@@ -18,7 +18,11 @@ function cleanUp() {
   spawn("node", [hexoBin, "clean"], { cwd: process.cwd() });
 }
 
-async function run_benchmark(name: string, spinner: ora.Ora) {
+async function run_benchmark(
+  name: string,
+  spinner: ora.Ora,
+  concurrency: number
+) {
   let measureFinished = false;
 
   return new Promise((resolve) => {
@@ -48,9 +52,13 @@ async function run_benchmark(name: string, spinner: ora.Ora) {
     });
     obs.observe({ entryTypes: ["measure"] });
 
-    const hexo = spawn("node", [hexoBin, "g", "--debug"], {
-      cwd: process.cwd(),
-    });
+    const hexo = spawn(
+      "node",
+      [hexoBin, "g", "--debug", "--concurrency", concurrency.toString()],
+      {
+        cwd: process.cwd(),
+      }
+    );
     hooks.forEach(({ regex, tag }) => {
       hexo.stdout.on("data", function listener(data) {
         const string = data.toString("utf-8");
@@ -109,7 +117,7 @@ async function run_benchmark(name: string, spinner: ora.Ora) {
   });
 }
 
-export default async () => {
+export default async (concurrency: number = Infinity) => {
   let spinner = ora({ text: "Cleaning...", color: "cyan" }).start();
   cleanUp();
   spinner.succeed("Cleaning complete.");
@@ -117,12 +125,12 @@ export default async () => {
     text: "Running cold processing...",
     color: "cyan",
   }).start();
-  await run_benchmark("Cold processing", spinner);
+  await run_benchmark("Cold processing", spinner, concurrency);
   spinner = ora({
     text: "Running hot processing...",
     color: "cyan",
   }).start();
-  await run_benchmark("Hot processing", spinner);
+  await run_benchmark("Hot processing", spinner, concurrency);
   spinner = ora({ text: "Cleaning...", color: "cyan" }).start();
   cleanUp();
   spinner.succeed("Cleaning complete.");
@@ -130,5 +138,5 @@ export default async () => {
     text: "Running another cold processing...",
     color: "cyan",
   }).start();
-  await run_benchmark("Another Cold processing", spinner);
+  await run_benchmark("Another Cold processing", spinner, concurrency);
 };

@@ -28,7 +28,11 @@ function getSampleStats(arr: number[]) {
   };
 }
 
-export default async (sampleRate: number = 500, clean: boolean = true) => {
+export default async (
+  sampleRate: number = 500,
+  clean: boolean = true,
+  concurrency: number = Infinity
+) => {
   const hexoBin = resolve(process.cwd(), "node_modules/hexo/bin/hexo");
   if (clean) {
     const spinner = ora({ text: "Cleaning...", color: "cyan" }).start();
@@ -54,9 +58,11 @@ export default async (sampleRate: number = 500, clean: boolean = true) => {
     color: "cyan",
   }).start();
   const hexo = new Hexo(process.cwd(), { silent: true });
+  const startTime = Date.now();
   memory.startSampling();
   await hexo.init();
-  await hexo.call("generate", {});
+  await hexo.call("generate", { concurrency });
+  const endTime = Date.now();
   memory.destroy();
   spinner.succeed("Memory profiling complete.");
 
@@ -79,6 +85,7 @@ export default async (sampleRate: number = 500, clean: boolean = true) => {
       ["Min: ", `${stats.min}MB`],
       ["Max: ", `${stats.max}MB`],
       ["Midian: ", `${stats.midian}MB`],
+      ["Total Time: ", `${(endTime - startTime) / 1000}s`],
     ])
   );
 };
