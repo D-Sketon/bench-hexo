@@ -3,6 +3,7 @@ import fs from "fs";
 import zeroEks from "0x";
 import ora from "ora";
 import { spawn } from "child_process";
+import stat from "./stat";
 
 export default async (
   clean: boolean = true,
@@ -41,4 +42,6 @@ export default async (
   await zeroEks(zeroEksOpts);
 
   spinner.succeed("Profiling complete. Flamegraph saved to 0x directory.");
+
+  await stat();
 };

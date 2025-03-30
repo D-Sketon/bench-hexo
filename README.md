@@ -16,6 +16,8 @@ npx bench-hexo profiling [options]
 
 #### Options
 
+- `--max-old-space-size <number>`: Set the maximum old space size for Node.js (default: 4096MB).
+- `-c, --concurrency <number>`: Set the number of concurrent processes (default: Infinity).
 - `--no-clean`: Do not clean Hexo cache before profiling.
 
 #### Example
@@ -23,6 +25,19 @@ npx bench-hexo profiling [options]
 ```plain
 ✔ Cleaning complete.
 ✔ Profiling complete. Flamegraph saved to 0x directory.
+✔ Hexo statistics loaded.
+
+Hexo Statistics:
+
+Number of posts:              2000
+Number of post assets:        0
+Avg of post content length:   17330
+Number of pages:              0
+Number of page assets:        0
+Avg of page content length:   0
+Number of tags:               100
+Number of categories:         13
+Number of routes:             4243
 ```
 
 ### Benchmark
@@ -32,8 +47,13 @@ Use perf_hooks to measure the performance metrics of the Hexo generation process
 #### Syntax
 
 ```bash
-npx bench-hexo benchmark
+npx bench-hexo benchmark [options]
 ```
+
+#### Options
+
+- `--max-old-space-size <number>`: Set the maximum old space size for Node.js (default: 4096MB).
+- `-c, --concurrency <number>`: Set the number of concurrent processes (default: Infinity).
 
 #### Example
 
@@ -44,21 +64,21 @@ Cold processing
 │ (index)                      │ Cost time (s) │
 ├──────────────────────────────┼───────────────┤
 │ Load Plugin/Scripts/Database │ '0.20s'       │
-│ Process Source               │ '1.57s'       │
-│ Render Posts                 │ '1.31s'       │
-│ Render Files                 │ '2.17s'       │
-│ Save Database                │ '0.15s'       │
-│ Total time                   │ '5.39s'       │
+│ Process Source               │ '2.85s'       │
+│ Render Posts                 │ '2.99s'       │
+│ Render Files                 │ '7.10s'       │
+│ Save Database                │ '0.64s'       │
+│ Total time                   │ '13.77s'      │
 └──────────────────────────────┴───────────────┘
 Hot processing
 ┌──────────────────────────────┬───────────────┐
 │ (index)                      │ Cost time (s) │
 ├──────────────────────────────┼───────────────┤
-│ Load Plugin/Scripts/Database │ '0.48s'       │
-│ Process Source               │ '0.48s'       │
-│ Render Files                 │ '1.77s'       │
-│ Save Database                │ '0.15s'       │
-│ Total time                   │ '2.89s'       │
+│ Load Plugin/Scripts/Database │ '1.17s'       │
+│ Process Source               │ '1.17s'       │
+│ Render Files                 │ '6.08s'       │
+│ Save Database                │ '0.64s'       │
+│ Total time                   │ '9.06s'       │
 └──────────────────────────────┴───────────────┘
 ✔ Cleaning complete.
 Another Cold processing
@@ -66,12 +86,25 @@ Another Cold processing
 │ (index)                      │ Cost time (s) │
 ├──────────────────────────────┼───────────────┤
 │ Load Plugin/Scripts/Database │ '0.20s'       │
-│ Process Source               │ '1.61s'       │
-│ Render Posts                 │ '1.33s'       │
-│ Render Files                 │ '2.19s'       │
-│ Save Database                │ '0.15s'       │
-│ Total time                   │ '5.49s'       │
+│ Process Source               │ '2.86s'       │
+│ Render Posts                 │ '2.95s'       │
+│ Render Files                 │ '7.08s'       │
+│ Save Database                │ '0.64s'       │
+│ Total time                   │ '13.73s'      │
 └──────────────────────────────┴───────────────┘
+✔ Hexo statistics loaded.
+
+Hexo Statistics:
+
+Number of posts:              2000
+Number of post assets:        0
+Avg of post content length:   17330
+Number of pages:              0
+Number of page assets:        0
+Avg of page content length:   0
+Number of tags:               100
+Number of categories:         13
+Number of routes:             4243
 ```
 
 
@@ -88,6 +121,8 @@ node src/index.js memory [options]
 #### Options
 
 - `-s, --sample-rate <number>`: Sample rate in milliseconds (default: 500ms).
+- `--max-old-space-size <number>`: Set the maximum old space size for Node.js (default: 4096MB).
+- `-c, --concurrency <number>`: Set the number of concurrent processes (default: Infinity).
 - `--no-clean`: Do not clean Hexo cache before profiling.
 
 #### Example
@@ -95,45 +130,42 @@ node src/index.js memory [options]
 ```plain
 ✔ Cleaning complete.
 ✔ Memory profiling complete.
-     437.21┤      ╭╮
-     427.65┤      ││
-     418.09┤      ││
-     408.52┤      ││
-     398.96┤      ││
-     389.40┤      ││
-     379.83┤      ││
-     370.27┤     ╭╯│
-     360.71┤     │ ╰
-     351.14┤     │
-     341.58┤     │
-     332.01┤    ╭╯
-     322.45┤    │
-     312.89┤    │
-     303.32┤    │
-     293.76┤    │
-     284.20┤    │
-     274.63┤   ╭╯
-     265.07┤   │
-     255.51┤   │
-     245.94┤   │
-     236.38┤  ╭╯
-     226.81┤  │
-     217.25┤ ╭╯
-     207.69┤ │
-     198.12┤ │
-     188.56┤ │
-     179.00┤ │
-     169.43┤ │
-     159.87┤╭╯
-     150.30┼╯
+    1196.86┤              ╭╮
+    1117.26┤              ││
+    1037.66┤              ││
+     958.06┤              ││       ╭
+     878.46┤              ││      ╭╯
+     798.86┤              ││     ╭╯
+     719.27┤             ╭╯│     │
+     639.67┤             │ ╰─────╯
+     560.07┤         ╭╮  │
+     480.47┤         │╰──╯
+     400.87┼╮      ╭─╯
+     321.27┤│   ╭╮╭╯
+     241.68┤│ ╭─╯╰╯
+     162.08┤╰─╯
 
 
 RSS Memory Stats:
 
-Avg:      284.11MB
-Min:      150.30MB
-Max:      437.21MB
-Midian:   277.64MB
+Avg:          523.54MB
+Min:          162.08MB
+Max:          1196.86MB
+Midian:       483.52MB
+Total Time:   12.866s
+✔ Hexo statistics loaded.
+
+Hexo Statistics:
+
+Number of posts:              2000
+Number of post assets:        0
+Avg of post content length:   17330
+Number of pages:              0
+Number of page assets:        0
+Avg of page content length:   0
+Number of tags:               100
+Number of categories:         13
+Number of routes:             4243
 ```
 
 ## License

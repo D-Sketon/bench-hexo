@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 import { resolve } from "path";
 import { performance, PerformanceObserver } from "perf_hooks";
 import ora from "ora";
+import stat from "./stat";
 
 const hooks = [
   { regex: /Hexo version/, tag: "hexo-begin" },
@@ -155,4 +156,5 @@ export default async (
     concurrency,
     maxOldSpaceSize
   );
+  await stat();
 };

@@ -5,6 +5,7 @@ import Hexo from "hexo";
 import ora from "ora";
 import { spawn } from "child_process";
 import { resolve } from "path";
+import stat from "./stat";
 
 const MARGIN_FACTOR = 1.3;
 
@@ -88,6 +89,8 @@ const memoryBenchmark = async (
       ["Total Time: ", `${(endTime - startTime) / 1000}s`],
     ])
   );
+
+  await stat();
 };
 
 const args = process.argv.slice(2);
