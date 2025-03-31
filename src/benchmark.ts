@@ -3,6 +3,9 @@ import { resolve } from "path";
 import { performance, PerformanceObserver } from "perf_hooks";
 import ora from "ora";
 import stat from "./stat";
+import { appendFile } from "fs/promises";
+
+const isGitHubActions = process.env.GITHUB_ACTIONS;
 
 const hooks = [
   { regex: /Hexo version/, tag: "hexo-begin" },
@@ -45,7 +48,21 @@ async function run_benchmark(
       if (measureFinished) {
         obs.disconnect();
 
-        spinner.stop();
+        spinner.stop(); 
+
+        if (isGitHubActions) {
+          if (isGitHubActions) {
+            appendFile(
+              process.env.GITHUB_STEP_SUMMARY,
+              `\n## ${name}\n\n| Step | Cost time (s) |\n| --- | --- |\n${Object.keys(
+                result
+              )
+                .map((name) => `| ${name} | ${result[name]["Cost time (s)"]} |`)
+                .join("\n")}\n`
+            );
+          }
+        }
+
         console.log(name);
         console.table(result);
 
@@ -156,5 +173,26 @@ export default async (
     concurrency,
     maxOldSpaceSize
   );
-  await stat();
+
+  const {
+    posts,
+    postAssets,
+    postContentLength,
+    pages,
+    pageAssets,
+    pageContentLength,
+    tags,
+    categories,
+    routes,
+  } = await stat();
+  if (isGitHubActions) {
+    appendFile(
+      process.env.GITHUB_STEP_SUMMARY,
+      `\n\n| Step | Value |\n| --- | --- |\n| Number of posts | ${posts} |\n| Number of post assets | ${postAssets} |\n| Avg of post content length | ${Math.floor(
+        postContentLength / posts
+      )} |\n| Number of pages | ${pages} |\n| Number of page assets | ${pageAssets} |\n| Avg of page content length | ${Math.floor(
+        pageContentLength / pages
+      )} |\n| Number of tags | ${tags} |\n| Number of categories | ${categories} |\n| Number of routes | ${routes} |\n`
+    );
+  }
 };

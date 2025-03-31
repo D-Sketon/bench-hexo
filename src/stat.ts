@@ -69,6 +69,17 @@ export default async () => {
         ["Number of routes: ", `${routes.length}`],
       ])
     );
+    return {
+      posts: posts.length,
+      postAssets: numOfPostAssets,
+      postContentLength: postContentTotalLen,
+      pages: pages.length,
+      pageAssets: numOfPageAssets,
+      pageContentLength: pageContentTotalLen,
+      tags: tags.length,
+      categories: categories.length,
+      routes: routes.length,
+    }
   } catch (e) {
     spinner.fail("Error loading Hexo statistics.");
     console.error(e);

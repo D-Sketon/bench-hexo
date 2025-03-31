@@ -6,8 +6,10 @@ import ora from "ora";
 import { spawn } from "child_process";
 import { resolve } from "path";
 import stat from "./stat";
+import { appendFile } from "fs/promises";
 
 const MARGIN_FACTOR = 1.3;
+const isGitHubActions = process.env.GITHUB_ACTIONS;
 
 function sampleData(oldArr: number[], width: number) {
   const factor = Math.round(oldArr.length / width);
@@ -67,17 +69,29 @@ const memoryBenchmark = async (
   memory.destroy();
   spinner.succeed("Memory profiling complete.");
 
-  const width = Math.floor(process.stdout.columns / MARGIN_FACTOR);
-  console.log(
-    asciichart.plot(
-      memoryStats.length > width ? sampleData(memoryStats, width) : memoryStats,
-      {
-        offset: 2,
-        height: Math.min(process.stdout.rows / MARGIN_FACTOR - 10, 30),
-        colors: [asciichart.green],
-      }
-    )
+  let width = Math.floor(process.stdout.columns / MARGIN_FACTOR);
+  let height = process.stdout.rows / MARGIN_FACTOR - 10;
+  if (Number.isNaN(width)) {
+    width = 80;
+  }
+  if (Number.isNaN(height)) {
+    height = 30;
+  }
+  const plot = asciichart.plot(
+    memoryStats.length > width ? sampleData(memoryStats, width) : memoryStats,
+    {
+      offset: 2,
+      height: Math.min(height, 30),
+    }
   );
+  console.log(plot);
+  if (isGitHubActions) {
+    appendFile(
+      process.env.GITHUB_STEP_SUMMARY,
+      `\n\n\`\`\`text\n${plot}\n\`\`\``
+    );
+  }
+
   const stats = getSampleStats(memoryStats);
   console.log("\n\nRSS Memory Stats: \n");
   console.log(
@@ -89,8 +103,38 @@ const memoryBenchmark = async (
       ["Total Time: ", `${(endTime - startTime) / 1000}s`],
     ])
   );
+  if (isGitHubActions) {
+    appendFile(
+      process.env.GITHUB_STEP_SUMMARY,
+      `\n\n| Step | Avg | Min | Max | Midian | Total Time |\n| --- | --- | --- | --- | --- | --- |\n| Memory Stats | ${
+        stats.avg
+      }MB | ${stats.min}MB | ${stats.max}MB | ${stats.midian}MB | ${
+        (endTime - startTime) / 1000
+      }s |\n`
+    );
+  }
 
-  await stat();
+  const {
+    posts,
+    postAssets,
+    postContentLength,
+    pages,
+    pageAssets,
+    pageContentLength,
+    tags,
+    categories,
+    routes,
+  } = await stat();
+  if (isGitHubActions) {
+    appendFile(
+      process.env.GITHUB_STEP_SUMMARY,
+      `\n\n| Step | Value |\n| --- | --- |\n| Number of posts | ${posts} |\n| Number of post assets | ${postAssets} |\n| Avg of post content length | ${Math.floor(
+        postContentLength / posts
+      )} |\n| Number of pages | ${pages} |\n| Number of page assets | ${pageAssets} |\n| Avg of page content length | ${Math.floor(
+        pageContentLength / pages
+      )} |\n| Number of tags | ${tags} |\n| Number of categories | ${categories} |\n| Number of routes | ${routes} |\n`
+    );
+  }
 };
 
 const args = process.argv.slice(2);
